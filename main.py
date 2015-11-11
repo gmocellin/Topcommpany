@@ -1,55 +1,20 @@
+#coding: utf-8
+
 import kivy
 
 from kivy.app import App
-from kivy.uix.label import Label
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
 
 import socket
+from random import randint
 
 # socket cliente
 sock = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
-endereco = ('localhost', 10000)
-
-kv = """
-Screen:
-    name: 'tela1'
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: 'Escreva o IP'
-        TextInput:
-            id: ip
-            text: 'localhost'
-        Label:
-            text: 'Escreva a porta'
-        TextInput:
-            id: port
-            text: '10000'
-        Button:
-            id: connect
-            text: 'connect'
-            on_release: 
-                app.connect (ip.text, port.text)
-                root.manager.current = 'tela2'
-            size_hint_y: None
-            height: '48dp'
-"""
-
-kv2 = """
-Screen:
-    name: 'tela2'
-    orientation: 'vertical'
-    Button:
-        text: 'disconnect'
-        on_release:
-            app.disconnect ()
-            root.manager.current = 'tela1'
-"""
 
 def sendInfo (dt):
-    sock.sendall ('sensor indica: 15 graus')
+    sock.sendall (str (randint (20, 25)))
 
 class MyApp(App):
     def connect (self, ip, port):
@@ -66,8 +31,8 @@ class MyApp(App):
 
     def build(self):
         sm = ScreenManager ()
-        sm.add_widget (Builder.load_string (kv))
-        sm.add_widget (Builder.load_string (kv2))
+        sm.add_widget (Builder.load_file ('telaConexao.kv'))
+        sm.add_widget (Builder.load_file ('telaEnvio.kv'))
         return sm
 
 

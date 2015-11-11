@@ -1,0 +1,23 @@
+Screen:
+    name: 'telaConexao'
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Escreva o IP'
+        TextInput:
+            id: ip
+            text: 'localhost'
+        Label:
+            text: 'Escreva a porta'
+        TextInput:
+            id: port
+            text: '10000'
+        Button:
+            id: connect
+            text: 'connect'
+            on_release: 
+                app.connect (ip.text, port.text)
+                root.manager.current = 'telaEnvio'
+            size_hint_y: None
+            height: '48dp'
+
