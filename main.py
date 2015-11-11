@@ -10,29 +10,49 @@ from kivy.clock import Clock
 import socket
 from random import randint
 
-# socket cliente
+# socket cliente global
 sock = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
 
-def sendInfo (dt):
-    sock.sendall (str (randint (20, 25)))
+# carrega o arquivo kivy das telas
+Builder.load_file ('telas.kv')
+
+class TelaConexao (Screen):
+    """Tela de conexão (tela inicial)"""
+    pass
+
+class TelaEnvio (Screen):
+    """Tela de leitura do sensor e envio para servidor"""
+    def schedule (self):
+        Clock.schedule_interval (self.sendInfo, 1)
+
+    def unschedule (self):
+        Clock.unschedule (self.sendInfo)
+
+    def sendInfo (self, dt):
+        sensor = str (randint (20, 25))
+        self.children[0].children[1].text = sensor + ' graus'
+        sock.sendall (sensor)
+
 
 class MyApp(App):
+    """DataSystemTruck Kivy App"""
     def connect (self, ip, port):
+        # tenta conectar, retornando se funcionou
         try:
             sock.connect ((ip, int (port)))
             print 'conectei'
-            Clock.schedule_interval (sendInfo, 1)
+            return True
         except:
             sock.close ()
+            return False
 
     def disconnect (self):
-        Clock.unschedule (sendInfo)
         sock.close ()
 
     def build(self):
         sm = ScreenManager ()
-        sm.add_widget (Builder.load_file ('telaConexao.kv'))
-        sm.add_widget (Builder.load_file ('telaEnvio.kv'))
+        sm.add_widget (TelaConexao (name = 'telaConexao'))
+        sm.add_widget (TelaEnvio (name = 'telaEnvio'))
         return sm
 
 

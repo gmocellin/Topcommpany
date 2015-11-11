@@ -1,4 +1,17 @@
-Screen:
+<TelaEnvio>:
+	on_enter: root.schedule ()
+	BoxLayout:
+    	orientation: 'vertical'
+		Label:
+			text: 'sensor'
+		Button:
+			text: 'disconnect'
+			on_release:
+				root.unschedule ()
+				app.disconnect ()
+				root.manager.current = 'telaConexao'
+
+<TelaConexao>:
     name: 'telaConexao'
     BoxLayout:
         orientation: 'vertical'

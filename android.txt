@@ -1,3 +1,3 @@
-title=DST
-author=EU
+title=DataSystemTruck
+author=Topcommpany
 orientation=portrait
