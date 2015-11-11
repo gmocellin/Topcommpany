@@ -1,0 +1,3 @@
+title=DST
+author=EU
+orientation=portrait
