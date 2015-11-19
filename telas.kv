@@ -1,5 +1,4 @@
 <TelaEnvio>:
-	on_enter: root.schedule ()
 	BoxLayout:
     	orientation: 'vertical'
 		Label:
@@ -7,19 +6,17 @@
 		Button:
 			text: 'disconnect'
 			on_release:
-				root.unschedule ()
 				app.disconnect ()
 				root.manager.current = 'telaConexao'
 
 <TelaConexao>:
-    name: 'telaConexao'
     BoxLayout:
         orientation: 'vertical'
         Label:
             text: 'Escreva o IP'
         TextInput:
             id: ip
-            text: 'localhost'
+            text: '127.0.0.1'
         Label:
             text: 'Escreva a porta'
         TextInput:
@@ -27,10 +24,19 @@
             text: '10000'
         Button:
             id: connect
-            text: 'connect'
+            text: 'Conectar'
             on_release: 
                 app.connect (ip.text, port.text)
                 root.manager.current = 'telaEnvio'
             size_hint_y: None
             height: '48dp'
 
+<TelaErroConexao>:
+	BoxLayout:
+		orientation: 'vertical'
+		Label:
+			text: 'Erro no envio do pacote\nTente novamente'
+		Button:
+			text: 'Voltar'
+			on_release:
+				root.manager.current = 'telaConexao'
