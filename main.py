@@ -1,5 +1,14 @@
 #coding: utf-8
 
+# Arquivos dos sensores
+sensores = [
+    open ('/dev/random')
+]
+
+def leituraSensor (idx):
+    """Retorna uma leitura do sensor no índice idx"""
+    return ord (sensores[idx].read (1)) % 6 + 20
+
 # Twisted pra rede funcionar
 # Função install_twisted_reactor deve ser importado antes do Twisted
 from kivy.support import install_twisted_reactor
@@ -9,9 +18,9 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
 class SensorSender (DatagramProtocol):
-    def __init__ (self, app, name, host, port):
+    def __init__ (self, app, idx, host, port):
         self.app = app
-        self.name = name
+        self.idx = idx
         self.host = host
         self.port = port
 
@@ -23,7 +32,10 @@ class SensorSender (DatagramProtocol):
         Clock.unschedule (self.sendSensors)
 
     def sendSensors (self, dt):
-        self.transport.write (self.name)
+        leitura = str (leituraSensor (self.idx))
+        self.transport.write (leitura)
+        self.app.sm.get_screen ('telaEnvio').ids['sensor'].text = leitura
+        
 
     def connectionRefused (self):
         self.app.erroConexao ()
@@ -61,7 +73,7 @@ class MyApp(App):
 
     def connect (self, ip, port):
         # tenta conectar, retornando se funcionou
-        self.connection = SensorSender (self, 'oi', ip, int (port))
+        self.connection = SensorSender (self, 0, ip, int (port))
         reactor.listenUDP (0, self.connection)
         print 'conectado'
 
