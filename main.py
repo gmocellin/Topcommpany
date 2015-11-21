@@ -2,8 +2,9 @@
 
 # Arquivos dos sensores
 sensores = [
-    open ('/dev/random')
+    open ('/dev/random'),
 ]
+numSensores = len (sensores)
 
 def leituraSensor (idx):
     """Retorna uma leitura do sensor no índice idx"""
@@ -18,9 +19,8 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
 class SensorSender (DatagramProtocol):
-    def __init__ (self, app, idx, host, port):
+    def __init__ (self, app, host, port):
         self.app = app
-        self.idx = idx
         self.host = host
         self.port = port
 
@@ -32,9 +32,13 @@ class SensorSender (DatagramProtocol):
         Clock.unschedule (self.sendSensors)
 
     def sendSensors (self, dt):
-        leitura = str (leituraSensor (self.idx))
-        self.transport.write (leitura)
-        self.app.sm.get_screen ('telaEnvio').ids['sensor'].text = leitura
+        string = ''
+        for i in range (numSensores):
+            leitura = str (leituraSensor (i))
+            self.app.sm.get_screen ('telaEnvio').ids['sensores'].children[i].text = leitura
+            string += '|' + leitura
+        self.transport.write (string)
+
         
 
     def connectionRefused (self):
@@ -46,6 +50,7 @@ import kivy
 
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
 
@@ -66,16 +71,14 @@ class TelaErroConexao (Screen):
     """Tela que mostra que a conexão falhou"""
     pass
 
-class MyApp(App):
+class MyApp (App):
     """DataSystemTruck Kivy App"""
 
     connection = None
 
     def connect (self, ip, port):
-        # tenta conectar, retornando se funcionou
-        self.connection = SensorSender (self, 0, ip, int (port))
+        self.connection = SensorSender (self, ip, int (port))
         reactor.listenUDP (0, self.connection)
-        print 'conectado'
 
     def disconnect (self):
         if self.connection:
@@ -89,7 +92,10 @@ class MyApp(App):
     def build (self):
         sm = ScreenManager ()
         sm.add_widget (TelaConexao (name = 'telaConexao'))
-        sm.add_widget (TelaEnvio (name = 'telaEnvio'))
+        telaEnvio = TelaEnvio (name = 'telaEnvio')
+        for i in range (numSensores):
+            telaEnvio.ids['sensores'].add_widget (Label (text = 'sensor' + str (i)))
+        sm.add_widget (telaEnvio)
         sm.add_widget (TelaErroConexao (name = 'telaErroConexao'))
         self.sm = sm
         return sm

@@ -1,9 +1,9 @@
 <TelaEnvio>:
 	BoxLayout:
     	orientation: 'vertical'
-		Label:
-			id: sensor
-			text: 'sensor'
+		BoxLayout:
+			orientation: 'vertical'
+			id: sensores
 		Button:
 			text: 'disconnect'
 			on_release:
@@ -29,8 +29,6 @@
             on_release: 
                 app.connect (ip.text, port.text)
                 root.manager.current = 'telaEnvio'
-            size_hint_y: None
-            height: '48dp'
 
 <TelaErroConexao>:
 	BoxLayout:
