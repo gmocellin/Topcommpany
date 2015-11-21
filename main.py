@@ -1,10 +1,10 @@
 #coding: utf-8
 
 # Arquivos dos sensores
-sensores = [
+numSensores = 4
+sensores = numSensores * [
     open ('/dev/random'),
 ]
-numSensores = len (sensores)
 
 def leituraSensor (idx):
     """Retorna uma leitura do sensor no índice idx"""
