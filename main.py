@@ -20,6 +20,8 @@ install_twisted_reactor()
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
+from uuid import getnode as get_mac
+
 class SensorSender (DatagramProtocol):
     """Conexão UDP que manda info dos sensores"""
     def __init__ (self, app, host, port):
@@ -38,7 +40,7 @@ class SensorSender (DatagramProtocol):
         Clock.unschedule (self.sendSensors)
 
     def sendSensors (self, dt):
-        string = ''
+        string = str (get_mac ())
         for i, s in enumerate (sensores):
             leitura = str (s.read ())
             self.app.sm.get_screen ('telaEnvio').ids['sensores'].children[i].text = s.context (leitura)
@@ -57,6 +59,13 @@ from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
+
+#from jnius import autoclass
+#PythonActivity = autoclass('org.renpy.android.PythonActivity')
+#View = autoclass('android.view.View')
+#Params = autoclass('android.view.WindowManager$LayoutParams')
+
+#from android.runnable import run_on_ui_thread
 
 # carrega o arquivo kivy das telas
 Builder.load_file ('telas.kv')
@@ -109,6 +118,17 @@ class MyApp (App):
         sm.add_widget (TelaErroEndereco (name = 'telaErroEndereco'))
         self.sm = sm
         return sm
+
+    def on_pause (self):
+        # aceita pausar
+        return True
+
+    def on_resume (self):
+        pass
+
+    #@run_on_ui_thread
+    #def android_setflag(self):
+        #PythonActivity.mActivity.getWindow().addFlags(Params.FLAG_KEEP_SCREEN_ON)
 
 
 if __name__ == '__main__':
