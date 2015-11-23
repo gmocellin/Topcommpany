@@ -4,3 +4,6 @@
 
 # coisas do python
 *.pyc
+
+# configuração do app
+*.ini

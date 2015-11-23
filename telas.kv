@@ -1,3 +1,44 @@
+<TelaPrincipal>:
+	BoxLayout:
+		orientation: 'vertical'
+		Button:
+			text: 'Configurar'
+			on_release:
+				root.manager.current = 'telaConfiguracao'
+		Button:
+			text: 'Conectar'
+            on_release: 
+                root.manager.current = 'telaEnvio'
+                app.connect ()
+			
+
+<TelaConfiguracao>:
+	on_pre_enter:
+		self.loadConfig (app)
+	on_leave:
+		self.saveConfig (app)
+    BoxLayout:
+        orientation: 'vertical'
+		Label:
+			text: 'Escreve o nome'
+		TextInput:
+			id: nome
+			text: 'nome'
+        Label:
+            text: 'Escreva o IP'
+        TextInput:
+            id: ip
+			text: '127.0.0.1'
+        Label:
+            text: 'Escreva a porta'
+        TextInput:
+            id: port
+			text: '10000'
+        Button:
+            text: 'voltar'
+			on_release:
+				root.manager.current = 'telaPrincipal'
+
 <TelaEnvio>:
 	BoxLayout:
     	orientation: 'vertical'
@@ -8,27 +49,7 @@
 			text: 'disconnect'
 			on_release:
 				app.disconnect ()
-				root.manager.current = 'telaConexao'
-
-<TelaConexao>:
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: 'Escreva o IP'
-        TextInput:
-            id: ip
-            text: '127.0.0.1'
-        Label:
-            text: 'Escreva a porta'
-        TextInput:
-            id: port
-            text: '10000'
-        Button:
-            id: connect
-            text: 'Conectar'
-            on_release: 
-                root.manager.current = 'telaEnvio'
-                app.connect (ip.text, port.text)
+				root.manager.current = 'telaPrincipal'
 
 <TelaErroConexao>:
 	BoxLayout:
@@ -38,14 +59,14 @@
 		Button:
 			text: 'Voltar'
 			on_release:
-				root.manager.current = 'telaConexao'
+				root.manager.current = 'telaPrincipal'
 
 <telaErroEndereco>:
 	BoxLayout:
 		orientation: 'vertical'
 		Label:
-			text: 'Endereço IP mal formatado\nTente novamente'
+			text: 'Endereço IP ou porta mal formatado\nTente novamente'
 		Button:
 			text: 'Voltar'
 			on_release:
-				root.manager.current = 'telaConexao'
+				root.manager.current = 'telaPrincipal'

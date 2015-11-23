@@ -31,7 +31,7 @@ class SensorSender (DatagramProtocol):
 
     def startProtocol (self):
         try:
-            self.transport.connect (self.host, self.port)
+            self.transport.connect (self.host, int (self.port))
             Clock.schedule_interval (self.sendSensors, 1)
         except:
             self.app.erroEndereco ()
@@ -40,7 +40,7 @@ class SensorSender (DatagramProtocol):
         Clock.unschedule (self.sendSensors)
 
     def sendSensors (self, dt):
-        string = str (get_mac ())
+        string = self.app.config.get ('conexao', 'nome')
         for i, s in enumerate (sensores):
             leitura = str (s.read ())
             self.app.sm.get_screen ('telaEnvio').ids['sensores'].children[i].text = s.context (leitura)
@@ -70,9 +70,23 @@ from kivy.clock import Clock
 # carrega o arquivo kivy das telas
 Builder.load_file ('telas.kv')
 
-class TelaConexao (Screen):
-    """Tela de conexão (tela inicial)"""
+class TelaPrincipal (Screen):
+    """Tela inicial"""
     pass
+
+class TelaConfiguracao (Screen):
+    def loadConfig (self, app):
+        config = app.config
+        self.ids['nome'].text = config.get ('conexao', 'nome')
+        self.ids['ip'].text = config.get ('conexao', 'ip')
+        self.ids['port'].text = config.get ('conexao', 'port')
+
+    def saveConfig (self, app):
+        config = app.config
+        config.set ('conexao', 'nome', self.ids['nome'].text)
+        config.set ('conexao', 'ip', self.ids['ip'].text)
+        config.set ('conexao', 'port', self.ids['port'].text)
+        config.write ()
 
 class TelaEnvio (Screen):
     """Tela de leitura do sensor e envio para servidor"""
@@ -91,8 +105,10 @@ class MyApp (App):
 
     connection = None
 
-    def connect (self, ip, port):
-        self.connection = SensorSender (self, ip, int (port))
+    def connect (self):
+        ip = self.config.get ('conexao', 'ip')
+        port = self.config.get ('conexao', 'port')
+        self.connection = SensorSender (self, ip, port)
         reactor.listenUDP (0, self.connection)
 
     def disconnect (self):
@@ -107,9 +123,17 @@ class MyApp (App):
     def erroEndereco (self):
         self.sm.current = 'telaErroEndereco'
 
+    def build_config (self, config):
+        config.setdefaults ('conexao', {
+            'nome' : 'batata',
+            'ip' : '127.0.0.1',
+            'port' : '10000'
+        })
+
     def build (self):
         sm = ScreenManager ()
-        sm.add_widget (TelaConexao (name = 'telaConexao'))
+        sm.add_widget (TelaPrincipal (name = 'telaPrincipal'))
+        sm.add_widget (TelaConfiguracao (name = 'telaConfiguracao'))
         telaEnvio = TelaEnvio (name = 'telaEnvio')
         for i in range (numSensores):
             telaEnvio.ids['sensores'].add_widget (Label (text = 'sensor' + str (i)))
