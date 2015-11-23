@@ -3,7 +3,7 @@
 import sensor
 
 # Arquivos dos sensores
-numSensores = 4
+numSensores = 5
 sensores = []
 for i in range (numSensores):
     sensores.append (sensor.RandSensor ())
@@ -21,14 +21,18 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
 class SensorSender (DatagramProtocol):
+    """Conexão UDP que manda info dos sensores"""
     def __init__ (self, app, host, port):
         self.app = app
         self.host = host
         self.port = port
 
     def startProtocol (self):
-        self.transport.connect (self.host, self.port)
-        Clock.schedule_interval (self.sendSensors, 1)
+        try:
+            self.transport.connect (self.host, self.port)
+            Clock.schedule_interval (self.sendSensors, 1)
+        except:
+            self.app.erroEndereco ()
 
     def stopProtocol (self):
         Clock.unschedule (self.sendSensors)
@@ -40,8 +44,6 @@ class SensorSender (DatagramProtocol):
             self.app.sm.get_screen ('telaEnvio').ids['sensores'].children[i].text = s.context (leitura)
             string += '|' + leitura
         self.transport.write (string)
-
-        
 
     def connectionRefused (self):
         self.app.erroConexao ()
@@ -71,6 +73,10 @@ class TelaErroConexao (Screen):
     """Tela que mostra que a conexão falhou"""
     pass
 
+class TelaErroEndereco (Screen):
+    """Tela que mostra que o endereço digitado está errado"""
+    pass
+
 class MyApp (App):
     """DataSystemTruck Kivy App"""
 
@@ -89,6 +95,9 @@ class MyApp (App):
         self.disconnect ()
         self.sm.current = 'telaErroConexao'
 
+    def erroEndereco (self):
+        self.sm.current = 'telaErroEndereco'
+
     def build (self):
         sm = ScreenManager ()
         sm.add_widget (TelaConexao (name = 'telaConexao'))
@@ -97,6 +106,7 @@ class MyApp (App):
             telaEnvio.ids['sensores'].add_widget (Label (text = 'sensor' + str (i)))
         sm.add_widget (telaEnvio)
         sm.add_widget (TelaErroConexao (name = 'telaErroConexao'))
+        sm.add_widget (TelaErroEndereco (name = 'telaErroEndereco'))
         self.sm = sm
         return sm
 

@@ -27,14 +27,24 @@
             id: connect
             text: 'Conectar'
             on_release: 
-                app.connect (ip.text, port.text)
                 root.manager.current = 'telaEnvio'
+                app.connect (ip.text, port.text)
 
 <TelaErroConexao>:
 	BoxLayout:
 		orientation: 'vertical'
 		Label:
 			text: 'Erro no envio do pacote\nTente novamente'
+		Button:
+			text: 'Voltar'
+			on_release:
+				root.manager.current = 'telaConexao'
+
+<telaErroEndereco>:
+	BoxLayout:
+		orientation: 'vertical'
+		Label:
+			text: 'Endereço IP mal formatado\nTente novamente'
 		Button:
 			text: 'Voltar'
 			on_release:
