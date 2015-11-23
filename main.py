@@ -1,14 +1,16 @@
 #coding: utf-8
 
+import sensor
+
 # Arquivos dos sensores
 numSensores = 4
-sensores = numSensores * [
-    open ('/dev/random'),
-]
+sensores = []
+for i in range (numSensores):
+    sensores.append (sensor.RandSensor ())
 
 def leituraSensor (idx):
     """Retorna uma leitura do sensor no índice idx"""
-    return ord (sensores[idx].read (1)) % 6 + 20
+    return ord (sensores[idx].read ()) % 6 + 20
 
 # Twisted pra rede funcionar
 # Função install_twisted_reactor deve ser importado antes do Twisted
@@ -33,9 +35,9 @@ class SensorSender (DatagramProtocol):
 
     def sendSensors (self, dt):
         string = ''
-        for i in range (numSensores):
-            leitura = str (leituraSensor (i))
-            self.app.sm.get_screen ('telaEnvio').ids['sensores'].children[i].text = leitura
+        for i, s in enumerate (sensores):
+            leitura = str (s.read ())
+            self.app.sm.get_screen ('telaEnvio').ids['sensores'].children[i].text = s.context (leitura)
             string += '|' + leitura
         self.transport.write (string)
 
@@ -53,8 +55,6 @@ from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
-
-from random import randint
 
 # carrega o arquivo kivy das telas
 Builder.load_file ('telas.kv')
