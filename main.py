@@ -1,16 +1,16 @@
 #coding: utf-8
 
-import sensor
+from sensor import *
 
 # Arquivos dos sensores
 numSensores = 5
 sensores = []
 for i in range (numSensores):
-    sensores.append (sensor.RandSensor ())
+    sensores.append (RandSensor ())
 
 def leituraSensor (idx):
     """Retorna uma leitura do sensor no índice idx"""
-    return ord (sensores[idx].read ()) % 6 + 20
+    return sensores[idx].read ()
 
 # Twisted pra rede funcionar
 # Função install_twisted_reactor deve ser importado antes do Twisted
@@ -21,6 +21,7 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
 from uuid import getnode as get_mac
+from struct import pack
 
 class SensorSender (DatagramProtocol):
     """Conexão UDP que manda info dos sensores"""
@@ -28,6 +29,7 @@ class SensorSender (DatagramProtocol):
         self.app = app
         self.host = host
         self.port = port
+        self.seq = 0
 
     def startProtocol (self):
         try:
@@ -40,12 +42,13 @@ class SensorSender (DatagramProtocol):
         Clock.unschedule (self.sendSensors)
 
     def sendSensors (self, dt):
-        string = self.app.config.get ('conexao', 'nome')
+        string = pack ('=I', self.seq) + self.app.config.get ('conexao', 'nome')
         for i, s in enumerate (sensores):
             leitura = str (s.read ())
             self.app.sm.get_screen ('telaEnvio').ids['sensores'].children[i].text = s.context (leitura)
-            string += '|' + leitura
+            string += '|' + str (i) + ':' + leitura
         self.transport.write (string)
+        self.seq += 1
 
     def connectionRefused (self):
         self.app.erroConexao ()
