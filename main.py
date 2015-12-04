@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 #coding: utf-8
 
 from sensor import *
@@ -103,7 +104,7 @@ class TelaErroEndereco (Screen):
     """Tela que mostra que o endereço digitado está errado"""
     pass
 
-class MyApp (App):
+class DataSystemTruckApp (App):
     """DataSystemTruck Kivy App"""
 
     connection = None
@@ -159,4 +160,4 @@ class MyApp (App):
 
 
 if __name__ == '__main__':
-    MyApp().run()
+    DataSystemTruckApp().run()

@@ -7,3 +7,6 @@
 
 # configuração do app
 *.ini
+
+# logs
+log_*
